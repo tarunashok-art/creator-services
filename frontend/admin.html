@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRATIFY Studio. Admin</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { padding-bottom: 60px; }
+  .admin-nav {
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+    margin-bottom: 40px;
+  }
+  .admin-nav .wrap { display: flex; justify-content: space-between; align-items: center; }
+  .admin-brand { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; text-decoration: none; }
+  .admin-logout { font-family: var(--mono); font-size: 12px; background: none; border: 1px solid var(--line); color: var(--text-muted); padding: 7px 14px; border-radius: 4px; cursor: pointer; }
+  .admin-logout:hover { border-color: var(--orange); color: var(--orange); }
+
+  .login-box {
+    max-width: 380px;
+    margin: 90px auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 36px 30px;
+  }
+  .login-box h1 { font-family: var(--display); font-size: 30px; text-transform: uppercase; margin: 0 0 6px; }
+  .login-box p.sub { color: var(--text-muted); font-size: 13.5px; margin: 0 0 24px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 28px; }
+  .tab-btn {
+    font-family: var(--mono); font-size: 12.5px; padding: 9px 16px;
+    border-radius: 20px; border: 1px solid var(--line); background: transparent;
+    color: var(--text-muted); cursor: pointer;
+  }
+  .tab-btn.active, .tab-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+  td.msg-cell { max-width: 260px; color: var(--text-muted); }
+
+  select.status-select {
+    background: var(--black); border: 1px solid var(--line); color: var(--text);
+    padding: 6px 8px; border-radius: 4px; font-family: var(--mono); font-size: 12px;
+  }
+  .status-badge {
+    font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 3px;
+    display: inline-block;
+  }
+  .status-new { background: rgba(226,135,63,0.18); color: var(--orange); }
+  .status-contacted { background: rgba(47,166,156,0.18); color: var(--teal); }
+  .status-won { background: rgba(47,166,156,0.3); color: var(--teal); }
+  .status-lost { background: rgba(226,96,63,0.18); color: #E2603F; }
+
+  .icon-btn {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-family: var(--mono); font-size: 12px; text-decoration: underline;
+  }
+  .icon-btn:hover { color: #E2603F; }
+
+  .panel-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 26px; margin-bottom: 24px; }
+  .panel-card h2 { font-family: var(--display); font-size: 24px; text-transform: uppercase; margin: 0 0 18px; }
+
+  .empty-note { color: var(--text-muted); font-size: 13.5px; padding: 20px 0; }
+
+  .pf-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .pf-form-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="loginView">
+  <div class="login-box">
+    <h1>GRATIFY Studio. Admin</h1>
+    <p class="sub">Sign in to manage leads and portfolio.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="dashboardView" style="display:none;">
+  <nav class="admin-nav">
+    <div class="wrap">
+      <a href="index.html" class="admin-brand"><span style="color:var(--orange)">●</span> GRATIFY Studio. Admin</a>
+      <button class="admin-logout" id="logoutBtn">Log out</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="leads">Leads</button>
+      <button class="tab-btn" data-tab="portfolio">Portfolio</button>
+    </div>
+
+    <div class="tab-panel active" id="leadsPanel">
+      <div class="panel-card">
+        <h2>Inbound Leads</h2>
+        <div id="leadsTableWrap">
+          <p class="empty-note">Loading…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="portfolioPanel">
+      <div class="panel-card">
+        <h2>Add Portfolio Item</h2>
+        <form id="portfolioForm">
+          <div class="pf-form-grid">
+            <div class="field">
+              <label for="pfTitle">Title *</label>
+              <input type="text" id="pfTitle" required>
+            </div>
+            <div class="field">
+              <label for="pfCategory">Category *</label>
+              <input type="text" id="pfCategory" placeholder="Web Design / Videography / Video Editing" required>
+            </div>
+          </div>
+          <div class="pf-form-grid">
+            <div class="field">
+              <label for="pfImage">Image URL</label>
+              <input type="url" id="pfImage" placeholder="https://…">
+            </div>
+            <div class="field">
+              <label for="pfLink">Link URL</label>
+              <input type="url" id="pfLink" placeholder="https://…">
+            </div>
+          </div>
+          <div class="field">
+            <label for="pfDescription">Description</label>
+            <textarea id="pfDescription" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Item</button>
+          <div class="form-msg" id="pfMsg"></div>
+        </form>
+      </div>
+
+      <div class="panel-card">
+        <h2>Existing Items</h2>
+        <div id="portfolioTableWrap">
+          <p class="empty-note">Loading…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
